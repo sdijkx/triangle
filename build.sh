@@ -1,3 +1,3 @@
 #!/bin/bash
 cd app
-./activator compile
+./activator -mem 512 compile
