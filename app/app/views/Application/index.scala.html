@@ -1,0 +1,7 @@
+@()(implicit session: Session, flash: Flash)
+@base(Messages("index.title")) {
+    <h1>Triangle</h1>
+    <ul>
+        <li><a href="@routes.Application.login">@Messages("login")</a></li>
+    </ul>
+}

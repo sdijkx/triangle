@@ -1,0 +1,11 @@
+home.title=Home
+index.title=Triangle Homepage
+welcome=Welkom {0}
+login=Aanmelden
+login.form.title=Aanmelden
+login.title=Aanmelden
+login.button=Aanmelden
+login.invalid=Ongeldige login
+login.success=Welkom
+signoff=Afmelden
+signoff.success=Afgemeld

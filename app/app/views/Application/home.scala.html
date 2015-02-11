@@ -1,0 +1,7 @@
+@(email:String)(implicit session: Session, flash: Flash)
+@base(Messages("home.title")) {
+    <h1>@Messages("welcome",email)</h1>
+    <ul>
+        <li><a href="@routes.Application.signoff">@Messages("signoff")</a></li>
+    </ul>
+}

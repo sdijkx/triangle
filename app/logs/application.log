@@ -1,0 +1,174 @@
+2015-02-11 21:29:18,435 - [INFO] - from play in pool-4-thread-9 
+Listening for HTTP on /0:0:0:0:0:0:0:0:9000
+
+2015-02-11 21:34:11,867 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 21:34:11,914 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 21:35:59,214 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 21:35:59,215 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:28:17,436 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:28:17,437 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:28:17,805 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:28:17,806 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:29:15,851 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:29:15,852 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:29:16,280 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:29:16,281 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:30:36,753 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:30:36,754 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:30:37,256 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:30:37,257 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:32:09,893 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:32:09,894 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:32:10,247 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:32:10,248 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:32:22,996 - [INFO] - from application in play-akka.actor.default-dispatcher-24 
+Calling action with token:Some(TESTTOKEN)
+
+2015-02-11 23:32:44,710 - [INFO] - from application in play-akka.actor.default-dispatcher-17 
+Calling action with token:Some(TESTTOKEN)
+
+2015-02-11 23:40:09,637 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:40:09,638 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:40:31,586 - [INFO] - from application in play-akka.actor.default-dispatcher-25 
+Calling action with token:Some(TESTTOKEN)
+
+2015-02-11 23:43:11,728 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:43:11,729 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:43:12,080 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:43:12,082 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:43:44,341 - [INFO] - from application in play-akka.actor.default-dispatcher-30 
+Calling action with token:Some(TESTTOKEN)
+
+2015-02-11 23:44:29,751 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:44:29,752 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:44:30,140 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:44:30,141 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:45:11,253 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:45:11,254 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:45:26,808 - [INFO] - from application in play-akka.actor.default-dispatcher-34 
+Calling action with token:Some(TESTTOKEN)
+
+2015-02-11 23:48:41,853 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:48:41,854 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:48:53,141 - [INFO] - from application in play-akka.actor.default-dispatcher-39 
+Calling action with token:Some(TESTTOKEN)
+
+2015-02-11 23:50:00,755 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:50:00,756 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:50:58,560 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:50:58,561 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:51:07,869 - [INFO] - from application in play-akka.actor.default-dispatcher-40 
+Calling action with token:Some(TESTTOKEN)
+
+2015-02-11 23:56:45,153 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:56:45,154 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:56:57,982 - [INFO] - from application in play-akka.actor.default-dispatcher-46 
+Calling action with token:Some(TESTTOKEN)
+
+2015-02-11 23:58:35,915 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-11 23:58:35,916 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-11 23:58:42,796 - [INFO] - from application in play-akka.actor.default-dispatcher-48 
+Calling action with token:Some(TESTTOKEN)
+
+2015-02-12 00:00:01,347 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-12 00:00:01,348 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-12 00:00:01,796 - [INFO] - from play in play-internal-execution-context-1 
+database [default] connected at jdbc:mysql://localhost/triangle
+
+2015-02-12 00:00:01,797 - [INFO] - from play in play-internal-execution-context-1 
+Application started (Dev)
+
+2015-02-12 00:00:07,857 - [INFO] - from application in play-akka.actor.default-dispatcher-50 
+Calling action with token:Some(TESTTOKEN)
+
+2015-02-12 00:00:23,129 - [INFO] - from application in play-akka.actor.default-dispatcher-49 
+Calling action with token:Some(TESTTOKEN)
+

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html ng-app="TriangleApp">
+    <head>
+        <link rel="stylesheet" href="@routes.Assets.at("stylesheets/main.css")" />
+
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-cookies.js"></script>
+
+    </head>
+    <body>
+
+        <div id="login" ng-controller="loginController" ng-hide="$root.isAuthenticated">
+            <div><input ng-model="credentials.email" placeholder="Email"/></div>
+            <div><input ng-model="credentials.password" type="password"></div>
+            <div><button ng-click="login(credentials)">Login</button></div>
+        </div>
+
+        <div id="login" ng-controller="loginController" ng-show="$root.isAuthenticated">
+            <div><button ng-click="signoff()">Signoff</button></div>
+        </div>
+
+        <div id="main" ng-show="$root.isAuthenticated" ng-controller="applicationController">
+            <div id="books">
+                <button ng-click="getBooks()">List Books</button>
+                <div ng-repeat="book in books">
+                    <div>{{ book.name }}</div>
+                    <div>{{ book.author }}</div>
+                </div>
+            </div>
+        </div>
+
+        <script src="@routes.Assets.at("javascripts/app.js")" ></script>
+    </body>
+</html>

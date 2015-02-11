@@ -1,0 +1,18 @@
+@(title: String)(content: Html)(implicit session: Session, flash: Flash)
+<html ng-app="TriangleApp">
+<head>
+    <title>Triangle - @title</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/main.css")" >
+</head>
+<body ng-controller="applicationController">
+<h1>@title</h1>
+    @if(!flash.isEmpty) {
+        @for((msgKey, msgValue) <- flash.data) {
+            <div class="@msgKey">
+                @Messages(msgValue)
+            </div>
+        }
+    }
+<div class="content">@content</div>
+</body>
+</html>

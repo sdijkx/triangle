@@ -3,8 +3,16 @@
 # ~~~~
 
 # Home page
-GET      /books                           controllers.Application.listBooks
-POST     /books                           controllers.Application.saveBook
+GET         /                    controllers.Application.index
+GET         /single              controllers.Application.single
+GET         /index               controllers.Application.index
+GET         /login               controllers.Application.login
+POST        /login/submit        controllers.Application.loginSubmit
+GET         /signoff             controllers.Application.signoff
+POST        /api/login           controllers.Api.login
+GET         /api/user            controllers.Api.user
+GET         /api/books           controllers.Api.listBooks
+POST        /api/books           controllers.Api.saveBook
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file)
+GET         /assets/*file        controllers.Assets.at(path="/public", file)

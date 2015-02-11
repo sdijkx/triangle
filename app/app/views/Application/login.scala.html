@@ -1,0 +1,15 @@
+@(form: Form[models.UserForm.UserData])(implicit session: Session, flash: Flash)
+@base(Messages("login.title")) {
+    @helper.form(routes.Application.loginSubmit) {
+        <h1>@Messages("login.form.title")</h1>
+        <p>
+            <input type="email" name="email" placeholder="Email" value="@form("email").value">
+        </p>
+        <p>
+            <input type="password" name="password" placeholder="Password">
+        </p>
+        <p>
+            <button type="submit">@Messages("login.button")</button>
+        </p>
+    }
+}
