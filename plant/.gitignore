@@ -1,0 +1,5 @@
+*.iml
+local
+target
+trainingset
+.idea
