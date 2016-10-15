@@ -3,10 +3,11 @@ package nl.triangle.plant.pipeline.dto;
 /**
  * Created by steven on 14-05-16.
  */
-public class PlantModel {
+public class RootSkeletonModel {
     private double[] box;
     private int x;
     private int y;
+    private DropModel dropModel;
 
     public void setBox(double[] box) {
         this.box = box;
@@ -38,5 +39,13 @@ public class PlantModel {
 
     public int getHeight() {
         return (int)(box[3]);
+    }
+
+    public DropModel getDropModel() {
+        return dropModel;
+    }
+
+    public void setDropModel(DropModel dropModel) {
+        this.dropModel = dropModel;
     }
 }

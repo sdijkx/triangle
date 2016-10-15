@@ -1,28 +1,13 @@
 package nl.triangle.plant.pipeline;
 
 import nl.triangle.plant.classifier.ImageClassifier;
-import nl.triangle.plant.classifier.ImageClassifierConfiguration;
 import nl.triangle.plant.classifier.ImageClassifierSVM;
-import nl.triangle.plant.classifier.algorithms.imagedescriptor.ImageDescriptor;
-import nl.triangle.plant.classifier.algorithms.imagedescriptor.ImageDescriptorFactory;
-import nl.triangle.plant.classifier.algorithms.imagedescriptor.block.BlockStreamConfiguration;
-import nl.triangle.plant.classifier.algorithms.imagedescriptor.cell.ComputeHistogram;
-import nl.triangle.plant.pipeline.data.ClassifiedRootImage;
-import nl.triangle.plant.pipeline.data.RootImage;
-import nl.triangle.plant.pipeline.data.RootSkeleton;
-import nl.triangle.plant.pipeline.dto.DropModel;
-import nl.triangle.plant.pipeline.dto.ProcessResult;
-import nl.triangle.plant.pipeline.dto.RootModel;
-import nl.triangle.plant.pipeline.processors.DetermineDropLocation;
-import nl.triangle.plant.pipeline.processors.FindRootSkeleton;
-import nl.triangle.plant.pipeline.processors.RootDetection;
+import nl.triangle.plant.pipeline.data.*;
+import nl.triangle.plant.pipeline.dto.*;
 import nl.triangle.plant.pipeline.processors.SlidingWindow;
-import nl.triangle.plant.pipeline.data.DropLocation;
-import nl.triangle.plant.pipeline.dto.PlantModel;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -34,125 +19,92 @@ import java.util.stream.Stream;
  */
 public class ProcessFactory {
 
+    public static ProcessFactory newInstance() {
+        return new ProcessFactory();
+    }
+
     public Process create() {
-        return (image) -> {
-            return image
-                    .map(findPlants())
-                    .map(findRoots())
-                    .map(detectRoots())
-                    .map(skeletonize())
-                    .map(determineDroplocation())
-                    .map(collectResults())
-                    .orElseThrow(() -> new IllegalStateException());
-        };
+        return (image) -> image.map(createProcessResult()).orElseThrow( () -> new IllegalStateException() );
     }
 
-    public Process createAnother() {
-        return (image) -> {
-            return image
-                    .map(findPlants())
-                    .map(rootImageStream ->  {
-                        return rootImageStream.flatMap(findRoots2())
-                            .map(rootImage -> new ClassifiedRootImage(rootImage))
-                            .map(classifiedRootImage -> new RootSkeleton(classifiedRootImage))
-                            .map(rootSkeleton -> new DropLocation(rootSkeleton));
-                    })
-                    .map(collectResults())
-                    .orElseThrow(() -> new IllegalStateException());
-        };
-    }
+    private Function<BufferedImage, ProcessResult> createProcessResult() {
 
-
-    private Function<Stream<DropLocation>, ProcessResult> collectResults() {
-        return (dropLocationStream) -> {
-            List<PlantModel> plantModelList = new ArrayList<>();
-            List<DropModel> dropModelList = new ArrayList<>();
-            List<RootModel> rootModelList = new ArrayList<>();
-            dropLocationStream.forEach(dropLocation -> {
-                dropModelList.add(toDropModel(dropLocation));
-                plantModelList.add(toPlantModel(dropLocation.getRootSkeleton()));
-                rootModelList.add(toRootModel(dropLocation.getRootSkeleton().getClassifiedRootImage().getRootImage()));
+        return image -> {
+            Stream<ProcessedPlantImage> processedPlantImageStream = findPlants(image).map(plantImage -> {
+                Stream<DropLocation> dropLocationStream = findRoots().apply(plantImage).map(detectRoots().andThen(skeletonize()).andThen(determineDroplocation()));
+                return new ProcessedPlantImage(plantImage, dropLocationStream);
             });
-            return new ProcessResult("OK", dropModelList, plantModelList, rootModelList);
 
+            ProcessedPlantImageToModel processedPlantImageToModel = new ProcessedPlantImageToModel();
+            List<PlantImageModel> plantImageModelList = processedPlantImageStream.map(processedPlantImageToModel::convert).collect(Collectors.toList());
+
+            ProcessResult processResult = new ProcessResult("OK", plantImageModelList);
+            return processResult;
         };
     }
 
-    private Function<Stream<RootSkeleton>, Stream<DropLocation>> determineDroplocation() {
-        return rootSkeletonStream -> {
-            DetermineDropLocation determineDropLocation = new DetermineDropLocation();
-            List<DropLocation> dropLocationList = determineDropLocation.processRootSkeletonList(rootSkeletonStream.collect(Collectors.toList()));
-            return dropLocationList.stream();
-        };
+    private Stream<PlantImage> findPlants(BufferedImage image) {
+        try {
+            ImageClassifier imageClassifier = new PlantClassifierFactory().create();
+            int imageWidth = imageClassifier.getConfiguration().getWidth();
+            int imageHeight = imageClassifier.getConfiguration().getHeight();
+            SlidingWindow<PlantImage> slidingWindow = new SlidingWindow<>(
+                    image,
+                    imageClassifier, imageWidth, imageHeight, 30,
+                    (image1, x, y) -> new PlantImage(image1, x, y)
+            );
+            return slidingWindow.process();
+        } catch (IOException e) {
+            return null;
+        }
     }
 
-    private Function<Stream<ClassifiedRootImage>, Stream<RootSkeleton>> skeletonize() {
-        return classifiedRootImageStream -> {
-            FindRootSkeleton rootSkeletonize = new FindRootSkeleton();
-            List<RootSkeleton> rootSkeletonList = rootSkeletonize.processRootImages(classifiedRootImageStream.collect(Collectors.toList()));
-            return rootSkeletonList.stream();
-        };
+    private Function<PlantImage, Stream<DropLocation>> interm() {
+        return plantImage ->
+                        findRoots().apply(plantImage)
+                        .map(detectRoots())
+                        .map(skeletonize())
+                        .map(determineDroplocation());
     }
 
-    private Function<Stream<RootImage>, Stream<ClassifiedRootImage>> detectRoots() {
-        return (rootImageStream) -> {
-            RootDetection rootDetection = new RootDetection();
-            List<ClassifiedRootImage> classifiedRootImages = rootDetection.processRootImages(rootImageStream.collect(Collectors.toList()));
-            return classifiedRootImages.stream();
-        };
-    }
 
-    private Function<Stream<RootImage>, Stream<RootImage>> findRoots() {
-        return rootImageStream -> {
-            return rootImageStream.flatMap(rootImage -> {
+    private Function<PlantImage, Stream<RootImage>> findRoots() {
+        return plantImage -> {
                 try {
-                    BlockStreamConfiguration blockStreamConfiguration = new BlockStreamConfiguration(5, 2, 6, new ComputeHistogram());
-                    ImageDescriptor hogDescriptor = ImageDescriptorFactory.newInstance().createHogDescriptor(blockStreamConfiguration);
-                    ImageClassifierConfiguration imageClassifierConfiguration = new ImageClassifierConfiguration(hogDescriptor, blockStreamConfiguration.getDescriptorSize());
-                    ImageClassifierSVM imageClassifier = null;
-                    imageClassifier = new ImageClassifierSVM(imageClassifierConfiguration, Paths.get("trainingset", "roots", "model-root-svm.eg"));
-                    SlidingWindow slidingWindow = new SlidingWindow(rootImage.getBufferedImage(), imageClassifier, 20, 60, 10);
-                    return slidingWindow.process().stream();
+                    ImageClassifierSVM imageClassifier = new RootClassifierFactory().create();
+                    int imageWidth = imageClassifier.getConfiguration().getWidth();
+                    int imageHeight = imageClassifier.getConfiguration().getHeight();
+                    SlidingWindow<RootImage> slidingWindow = new SlidingWindow<>(
+                            plantImage.getBufferedImage(),
+                            imageClassifier, imageWidth , imageHeight, 10,
+                            (image, x, y) -> {
+                                return new RootImage(image, plantImage.getX() + x, plantImage.getY() + y, plantImage);
+                            }
+                    );
+                    return slidingWindow.process();
                 } catch (IOException e) {
-                    e.printStackTrace();
                     return null;
                 }
-            });
-        };
-    }
-
-    private Function<RootImage, Stream<RootImage>> findRoots2() {
-        return rootImage -> {
-            try {
-                BlockStreamConfiguration blockStreamConfiguration = new BlockStreamConfiguration(5, 2, 6, new ComputeHistogram());
-                ImageDescriptor hogDescriptor = ImageDescriptorFactory.newInstance().createHogDescriptor(blockStreamConfiguration);
-                ImageClassifierConfiguration imageClassifierConfiguration = new ImageClassifierConfiguration(hogDescriptor, blockStreamConfiguration.getDescriptorSize());
-                ImageClassifierSVM imageClassifier = null;
-                imageClassifier = new ImageClassifierSVM(imageClassifierConfiguration, Paths.get("trainingset", "roots", "model-root-svm.eg"));
-                SlidingWindow slidingWindow = new SlidingWindow(rootImage.getBufferedImage(), imageClassifier, 20, 60, 10);
-                return slidingWindow.process().stream();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        };
+          };
     }
 
 
-    private Function<BufferedImage, Stream<RootImage>> findPlants() {
-        return image -> {
-            try {
-                BlockStreamConfiguration blockStreamConfiguration = new BlockStreamConfiguration(8, 3, 4, new ComputeHistogram());
-                ImageDescriptor hogDescriptor = ImageDescriptorFactory.newInstance().createHogDescriptor(blockStreamConfiguration);
-                ImageClassifierConfiguration imageClassifierConfiguration = new ImageClassifierConfiguration(hogDescriptor, blockStreamConfiguration.getDescriptorSize());
-                ImageClassifier imageClassifier = new ImageClassifierSVM(imageClassifierConfiguration, Paths.get("trainingset", "plants", "model-svm.eg"));
-                SlidingWindow slidingWindow = new SlidingWindow(image, imageClassifier, 200, 300, 30);
-                List<RootImage> rootImages = slidingWindow.process();
-                return rootImages.stream();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
+
+    private Function<RootSkeleton, DropLocation> determineDroplocation() {
+        return rootSkeleton -> {
+            return new DropLocation(rootSkeleton);
+        };
+    }
+
+    private Function<ClassifiedRootImage, RootSkeleton> skeletonize() {
+        return classifiedRootImage -> {
+            return new RootSkeleton(classifiedRootImage);
+        };
+    }
+
+    private Function<RootImage, ClassifiedRootImage> detectRoots() {
+        return (rootImage) -> {
+            return new ClassifiedRootImage(rootImage);
         };
     }
 
@@ -176,4 +128,15 @@ public class ProcessFactory {
         plantModel.setY(rootSkeleton.getY());
         return plantModel;
     }
+
+    private PlantImageModel toPlantImageModel(PlantImage plantImage) {
+        PlantImageModel plantImageModel = new PlantImageModel();
+        plantImageModel.setX(plantImage.getX());
+        plantImageModel.setY(plantImage.getY());
+        plantImageModel.setWidth(plantImage.getBufferedImage().getWidth());
+        plantImageModel.setHeight(plantImage.getBufferedImage().getHeight());
+        return plantImageModel;
+    }
+
+
 }
