@@ -31,4 +31,9 @@ public class ImageClassifierDummy implements ImageClassifier {
         }
         return false;
     }
+
+    @Override
+    public ImageClassifierConfiguration getConfiguration() {
+        return null;
+    }
 }

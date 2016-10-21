@@ -6,6 +6,7 @@ import nl.triangle.plant.classifier.algorithms.imagedescriptor.block.ContrastNor
 import nl.triangle.plant.classifier.algorithms.imagedescriptor.block.ImageToBlockStream;
 import nl.triangle.plant.classifier.algorithms.imagedescriptor.cell.Cell;
 import nl.triangle.plant.classifier.algorithms.imagedescriptor.image.ConvolveOpTransform;
+import nl.triangle.plant.classifier.algorithms.imagedescriptor.image.EdgeDetectionFilter;
 import nl.triangle.plant.classifier.algorithms.imagedescriptor.image.ResizeImage;
 import org.encog.ml.data.MLData;
 import org.encog.ml.data.basic.BasicMLData;
@@ -24,7 +25,7 @@ public class ImageDescriptorFactory {
         return new ImageDescriptorFactory();
     }
 
-    public ImageDescriptor createHogDescriptor(BlockStreamConfiguration configuration) {
+    public ImageDescriptor createPlantDescriptor(BlockStreamConfiguration configuration) {
         return (image) ->
             image
                 .map(resize(configuration.getImageWidth(),configuration.getImageHeight()))
@@ -34,6 +35,23 @@ public class ImageDescriptorFactory {
                 .map(toMLData())
                 .orElseThrow(() -> new IllegalStateException());
     }
+
+    public ImageDescriptor createRootDescriptor(BlockStreamConfiguration configuration) {
+        return (image) ->
+                image
+                        .map(resize(configuration.getImageWidth(), configuration.getImageHeight()))
+                        .map(convolve(new float[] { 1.0f, 0f, 1f, -1f, 0f, 1f}, 3, 2))
+//                        .map(edgeDetect())
+                        .map(imageToBlockStream(configuration))
+                        .map(normalizeBlocks())
+                        .map(toMLData())
+                        .orElseThrow(() -> new IllegalStateException());
+    }
+
+    private Function<BufferedImage, BufferedImage> edgeDetect() {
+        return image -> new EdgeDetectionFilter().transform(image);
+    }
+
 
     private Function<DoubleStream, MLData> toMLData() {
         return (doubleStream -> new BasicMLData(doubleStream.toArray()));

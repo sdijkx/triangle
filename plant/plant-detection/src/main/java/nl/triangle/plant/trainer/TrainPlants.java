@@ -2,19 +2,11 @@ package nl.triangle.plant.trainer;
 
 import nl.triangle.plant.classifier.ImageClassifierConfiguration;
 import nl.triangle.plant.classifier.ImageClassifierSVM;
-import nl.triangle.plant.classifier.algorithms.imagedescriptor.block.BlockStreamConfiguration;
-import nl.triangle.plant.classifier.algorithms.imagedescriptor.cell.ComputeHistogram;
-import nl.triangle.plant.classifier.algorithms.imagedescriptor.ImageDescriptor;
-import nl.triangle.plant.classifier.algorithms.imagedescriptor.ImageDescriptorFactory;
+import nl.triangle.plant.pipeline.classifiers.PlantClassifierFactory;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Created by steven on 06-12-15.
@@ -28,9 +20,7 @@ public class TrainPlants {
 
     private void trainSVM() throws IOException {
 
-        BlockStreamConfiguration blockStreamConfiguration = new BlockStreamConfiguration(8,3,4, new ComputeHistogram());
-        ImageDescriptor hogDescriptor = ImageDescriptorFactory.newInstance().createHogDescriptor(blockStreamConfiguration);
-        ImageClassifierConfiguration configuration = new ImageClassifierConfiguration(hogDescriptor, blockStreamConfiguration.getDescriptorSize());
+        ImageClassifierConfiguration configuration = new PlantClassifierFactory().createConfiguration();
 
         Path model = Paths.get("trainingset", "plants", "model-svm.eg");
         Path trainingFiles = Paths.get("trainingset", "plants");

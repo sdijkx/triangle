@@ -7,6 +7,7 @@ import nl.triangle.plant.pipeline.dto.ProcessResult;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -20,19 +21,19 @@ public class RestApplication {
 
     private static final Logger logger = Logger.getLogger(RestApplication.class.getName());
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
-        ProcessImagePipeline pipeline = new ProcessImagePipeline();
+        Process pipeline = ProcessFactory.newInstance().create();
         Gson gson = new Gson();
         port(9000);
 
-        post("/process", (req, res) -> {
+        post("/findImages", (req, res) -> {
             ProcessImageRequest processImageRequest = gson.fromJson(req.body(), ProcessImageRequest.class);
             BufferedImage image = ImageIO.read(new URL(processImageRequest.getImageUrl()));
             return pipeline.process(Optional.of(image));
         }, gson::toJson);
 
-        post("/process/binary", (req, res) -> {
+        post("/findImages/binary", (req, res) -> {
             byte[] imageData = req.bodyAsBytes();
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageData));
             return pipeline.process(Optional.of(image));

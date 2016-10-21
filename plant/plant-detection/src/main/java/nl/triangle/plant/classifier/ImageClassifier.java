@@ -8,4 +8,6 @@ import java.util.Optional;
  */
 public interface ImageClassifier {
     boolean classifiy(Optional<BufferedImage> image);
+
+    ImageClassifierConfiguration getConfiguration();
 }

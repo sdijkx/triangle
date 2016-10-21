@@ -1,5 +1,6 @@
 package nl.triangle.plant.classifier;
 
+import nl.triangle.plant.pipeline.dto.PlantImageModel;
 import org.encog.ml.data.MLData;
 import org.encog.ml.data.basic.BasicMLData;
 import org.encog.ml.svm.PersistSVM;
@@ -55,4 +56,8 @@ public class ImageClassifierSVM implements ImageClassifier {
     }
 
 
+    @Override
+    public ImageClassifierConfiguration getConfiguration() {
+        return classifierConfiguration;
+    }
 }

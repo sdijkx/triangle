@@ -1,14 +1,14 @@
 package nl.triangle.plant.pipeline;
 
 import nl.triangle.plant.classifier.ImageClassifier;
-import nl.triangle.plant.classifier.ImageClassifierSVM;
+import nl.triangle.plant.pipeline.classifiers.PlantClassifierFactory;
+import nl.triangle.plant.pipeline.classifiers.RootClassifierFactory;
 import nl.triangle.plant.pipeline.data.*;
 import nl.triangle.plant.pipeline.dto.*;
 import nl.triangle.plant.pipeline.processors.SlidingWindow;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -19,9 +19,17 @@ import java.util.stream.Stream;
  */
 public class ProcessFactory {
 
-    public static ProcessFactory newInstance() {
-        return new ProcessFactory();
+    public ProcessFactory(ImageClassifier plantClassifier, ImageClassifier rootClassifier) {
+        this.plantClassifier = plantClassifier;
+        this.rootClassifier = rootClassifier;
     }
+
+    public static ProcessFactory newInstance() throws IOException {
+        return new ProcessFactory(new PlantClassifierFactory().create(), new RootClassifierFactory().create());
+    }
+
+    private final ImageClassifier plantClassifier;
+    private final ImageClassifier rootClassifier;
 
     public Process create() {
         return (image) -> image.map(createProcessResult()).orElseThrow( () -> new IllegalStateException() );
@@ -29,66 +37,51 @@ public class ProcessFactory {
 
     private Function<BufferedImage, ProcessResult> createProcessResult() {
 
-        return image -> {
-            Stream<ProcessedPlantImage> processedPlantImageStream = findPlants(image).map(plantImage -> {
-                Stream<DropLocation> dropLocationStream = findRoots().apply(plantImage).map(detectRoots().andThen(skeletonize()).andThen(determineDroplocation()));
-                return new ProcessedPlantImage(plantImage, dropLocationStream);
-            });
-
-            ProcessedPlantImageToModel processedPlantImageToModel = new ProcessedPlantImageToModel();
-            List<PlantImageModel> plantImageModelList = processedPlantImageStream.map(processedPlantImageToModel::convert).collect(Collectors.toList());
-
-            ProcessResult processResult = new ProcessResult("OK", plantImageModelList);
-            return processResult;
+        return inputImage -> {
+            SlidingWindow<PlantImage> plantImages = createSlidingWindowForPlants(inputImage);
+            Stream<ProcessedPlantImage> processedPlantImageStream = plantImages.findImages().map(this::findRoots);
+            return toProcessResult(processedPlantImageStream);
         };
     }
 
-    private Stream<PlantImage> findPlants(BufferedImage image) {
-        try {
-            ImageClassifier imageClassifier = new PlantClassifierFactory().create();
-            int imageWidth = imageClassifier.getConfiguration().getWidth();
-            int imageHeight = imageClassifier.getConfiguration().getHeight();
-            SlidingWindow<PlantImage> slidingWindow = new SlidingWindow<>(
-                    image,
-                    imageClassifier, imageWidth, imageHeight, 30,
-                    (image1, x, y) -> new PlantImage(image1, x, y)
-            );
-            return slidingWindow.process();
-        } catch (IOException e) {
-            return null;
-        }
+    private ProcessedPlantImage findRoots(PlantImage plantImage) {
+        SlidingWindow<RootImage> rootImages = createSlidingWindowForRoots(plantImage);
+        Stream<DropLocation> dropLocationStream = rootImages.findImages()
+                .map(
+                        detectRoots()
+                                .andThen((rootImage) -> new RootSkeleton(
+                                        new ClassifiedRootImage(
+                                                new RootImage(plantImage.getBufferedImage(), plantImage.getX(), plantImage.getY(), plantImage)
+                                        )))
+                                .andThen(determineDroplocation())
+                );
+        return new ProcessedPlantImage(plantImage, dropLocationStream);
     }
 
-    private Function<PlantImage, Stream<DropLocation>> interm() {
-        return plantImage ->
-                        findRoots().apply(plantImage)
-                        .map(detectRoots())
-                        .map(skeletonize())
-                        .map(determineDroplocation());
+    private SlidingWindow<RootImage> createSlidingWindowForRoots(PlantImage plantImage) {
+        return new SlidingWindow<RootImage>(
+                plantImage.getBufferedImage(),
+                rootClassifier,
+                5,
+                (image2, x, y) -> new RootImage(image2, plantImage.getX() + x, plantImage.getY() + y, plantImage)
+        );
     }
 
-
-    private Function<PlantImage, Stream<RootImage>> findRoots() {
-        return plantImage -> {
-                try {
-                    ImageClassifierSVM imageClassifier = new RootClassifierFactory().create();
-                    int imageWidth = imageClassifier.getConfiguration().getWidth();
-                    int imageHeight = imageClassifier.getConfiguration().getHeight();
-                    SlidingWindow<RootImage> slidingWindow = new SlidingWindow<>(
-                            plantImage.getBufferedImage(),
-                            imageClassifier, imageWidth , imageHeight, 10,
-                            (image, x, y) -> {
-                                return new RootImage(image, plantImage.getX() + x, plantImage.getY() + y, plantImage);
-                            }
-                    );
-                    return slidingWindow.process();
-                } catch (IOException e) {
-                    return null;
-                }
-          };
+    private SlidingWindow<PlantImage> createSlidingWindowForPlants(BufferedImage image) {
+        return new SlidingWindow<PlantImage>(
+                image,
+                plantClassifier,
+                30,
+                (image1, x, y) -> new PlantImage(image1, x, y)
+        );
     }
 
-
+    private ProcessResult toProcessResult(Stream<ProcessedPlantImage> processedPlantImageStream) {
+        ProcessedPlantImageToModel processedPlantImageToModel = new ProcessedPlantImageToModel();
+        List<PlantImageModel> plantImageModelList = processedPlantImageStream.map(processedPlantImageToModel::convert).collect(Collectors.toList());
+        ProcessResult processResult = new ProcessResult("OK", plantImageModelList);
+        return processResult;
+    }
 
     private Function<RootSkeleton, DropLocation> determineDroplocation() {
         return rootSkeleton -> {
@@ -106,36 +99,6 @@ public class ProcessFactory {
         return (rootImage) -> {
             return new ClassifiedRootImage(rootImage);
         };
-    }
-
-    private RootModel toRootModel(RootImage rootImage) {
-        RootModel rootModel = new RootModel();
-        rootModel.setX(rootImage.getX());
-        rootModel.setY(rootImage.getY());
-        rootModel.setWidth(rootImage.getBufferedImage().getWidth());
-        rootModel.setHeight(rootImage.getBufferedImage().getHeight());
-        return rootModel;
-    }
-
-    private DropModel toDropModel(DropLocation dropLocation) {
-        return new DropModel(dropLocation.getX(), dropLocation.getY(), dropLocation.getWeight());
-    }
-
-    private PlantModel toPlantModel(RootSkeleton rootSkeleton) {
-        PlantModel plantModel = new PlantModel();
-        plantModel.setBox(rootSkeleton.getTrendLine().getBox());
-        plantModel.setX(rootSkeleton.getX());
-        plantModel.setY(rootSkeleton.getY());
-        return plantModel;
-    }
-
-    private PlantImageModel toPlantImageModel(PlantImage plantImage) {
-        PlantImageModel plantImageModel = new PlantImageModel();
-        plantImageModel.setX(plantImage.getX());
-        plantImageModel.setY(plantImage.getY());
-        plantImageModel.setWidth(plantImage.getBufferedImage().getWidth());
-        plantImageModel.setHeight(plantImage.getBufferedImage().getHeight());
-        return plantImageModel;
     }
 
 

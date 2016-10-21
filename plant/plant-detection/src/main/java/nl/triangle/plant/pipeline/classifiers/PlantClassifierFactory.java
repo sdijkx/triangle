@@ -22,7 +22,7 @@ public class PlantClassifierFactory {
 
     public ImageClassifierConfiguration createConfiguration() {
         BlockStreamConfiguration blockStreamConfiguration = new BlockStreamConfiguration(8, 3, 4, new ComputeHistogram());
-        ImageDescriptor hogDescriptor = ImageDescriptorFactory.newInstance().createHogDescriptor(blockStreamConfiguration);
+        ImageDescriptor hogDescriptor = ImageDescriptorFactory.newInstance().createPlantDescriptor(blockStreamConfiguration);
         return new ImageClassifierConfiguration(hogDescriptor, blockStreamConfiguration.getDescriptorSize(), 200, 300);
     }
 }

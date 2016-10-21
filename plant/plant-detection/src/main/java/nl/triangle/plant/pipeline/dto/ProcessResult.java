@@ -8,37 +8,24 @@ import java.util.List;
 public class ProcessResult {
 
     private final String result;
-    private final List<RootModel> rootModelList;
-    private final List<DropModel> dropModelList;
-    private final List<PlantModel> plantModelList;
+    private final List<PlantImageModel> plantImageModelList;
 
     public ProcessResult(String result) {
         this.result = result;
-        this.dropModelList = null;
-        this.plantModelList = null;
-        this.rootModelList = null;
+        this.plantImageModelList = null;
     }
 
-    public ProcessResult(String result, List<DropModel> dropModelList, List<PlantModel> plantModelList, List<RootModel> rootModelList) {
+    public ProcessResult(String result,  List<PlantImageModel> plantImageModelList) {
         this.result = result;
-        this.rootModelList = rootModelList;
-        this.dropModelList = dropModelList;
-        this.plantModelList = plantModelList;
+        this.plantImageModelList = plantImageModelList;
     }
 
     public String getResult() {
         return result;
     }
 
-    public List<DropModel> getDropModelList() {
-        return dropModelList;
-    }
 
-    public List<PlantModel> getPlantModelList() {
-        return plantModelList;
-    }
-
-    public List<RootModel> getRootModelList() {
-        return rootModelList;
+    public List<PlantImageModel> getPlantImageModelList() {
+        return plantImageModelList;
     }
 }

@@ -1,13 +1,18 @@
 package nl.triangle.plant.pipeline.dto;
 
+import java.util.List;
+
 /**
  * Created by steven on 09-06-16.
  */
 public class PlantImageModel {
+
     private int x;
     private int y;
     private int width;
     private int height;
+
+    private List<RootModel> rootModelList;
 
     public int getX() {
         return x;
@@ -39,5 +44,13 @@ public class PlantImageModel {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public List<RootModel> getRootModelList() {
+        return rootModelList;
+    }
+
+    public void setRootModelList(List<RootModel> rootModelList) {
+        this.rootModelList = rootModelList;
     }
 }

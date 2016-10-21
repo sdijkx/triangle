@@ -8,6 +8,8 @@ public class RootModel {
     private int y;
     private int width;
     private int height;
+    private RootSkeletonModel rootSkeletonModel;
+
 
     public int getX() {
         return x;
@@ -39,5 +41,13 @@ public class RootModel {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public RootSkeletonModel getRootSkeletonModel() {
+        return rootSkeletonModel;
+    }
+
+    public void setRootSkeletonModel(RootSkeletonModel rootSkeletonModel) {
+        this.rootSkeletonModel = rootSkeletonModel;
     }
 }

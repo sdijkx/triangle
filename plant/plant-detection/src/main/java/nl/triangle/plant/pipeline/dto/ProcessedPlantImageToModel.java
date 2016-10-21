@@ -17,11 +17,10 @@ public class ProcessedPlantImageToModel {
 
         List<RootModel> rootModelList = processedPlantImage.getDropLocationStream().map(dropLocation -> {
             RootModel rootModel = toRootModel(dropLocation.getRootSkeleton().getClassifiedRootImage().getRootImage());
-            PlantModel plantModel = toPlantModel(dropLocation.getRootSkeleton());
+            RootSkeletonModel rootSkeletonModel = toRootSkeletonModel(dropLocation.getRootSkeleton());
             DropModel dropModel = toDropModel(dropLocation);
-
-            plantModel.setDropModel(dropModel);
-            rootModel.setPlantModel(plantModel);
+            rootSkeletonModel.setDropModel(dropModel);
+            rootModel.setRootSkeletonModel(rootSkeletonModel);
             return rootModel;
         }).collect(Collectors.toList());
 
@@ -43,12 +42,12 @@ public class ProcessedPlantImageToModel {
         return new DropModel(dropLocation.getX(), dropLocation.getY(), dropLocation.getWeight());
     }
 
-    private PlantModel toPlantModel(RootSkeleton rootSkeleton) {
-        PlantModel plantModel = new PlantModel();
-        plantModel.setBox(rootSkeleton.getTrendLine().getBox());
-        plantModel.setX(rootSkeleton.getX());
-        plantModel.setY(rootSkeleton.getY());
-        return plantModel;
+    private RootSkeletonModel toRootSkeletonModel(RootSkeleton rootSkeleton) {
+        RootSkeletonModel rootSkeletonModel = new RootSkeletonModel();
+        rootSkeletonModel.setBox(rootSkeleton.getTrendLine().getBox());
+        rootSkeletonModel.setX(rootSkeleton.getX());
+        rootSkeletonModel.setY(rootSkeleton.getY());
+        return rootSkeletonModel;
     }
 
     private PlantImageModel toPlantImageModel(PlantImage plantImage) {
@@ -59,6 +58,4 @@ public class ProcessedPlantImageToModel {
         plantImageModel.setHeight(plantImage.getBufferedImage().getHeight());
         return plantImageModel;
     }
-
-
 }
